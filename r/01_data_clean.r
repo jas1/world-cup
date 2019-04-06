@@ -336,6 +336,11 @@ version_es_final <- version_es %>%
 
 # readr::write_delim(version_es_final,here::here("r","data","20190406_es_final_partidos.txt"),delim = "\t")
     
+
+# para leer de forma remota:  ---------------------------------------------
+
+campeonatos_mundiales_crudo <- readr::read_delim("https://raw.githubusercontent.com/jas1/world-cup/master/r/data/20190406_es_final_partidos.txt",delim = "\t")
+
 # parsear equipos ---------------------------------------------------------
 wc_teams_by_cup_data <- wc_data %>% 
     mutate(team_path =  here::here(dir_name,'squads',file_wc_teams_data)) %>% 
