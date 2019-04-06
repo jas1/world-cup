@@ -95,6 +95,8 @@ wc_path_dirs_regex <- rebus::DGT %R% rebus::DGT %R% rebus::DGT %R% rebus::DGT %R
 wc_data <- list.files(path = here::here(),pattern = wc_path_dirs_regex) %>% 
     tibble::enframe() %>% 
     rename(dir_name = value) %>% 
+    mutate(dir_name_2 = dir_name) %>% 
+    tidyr::separate(dir_name_2,into = c('anio','sponsor'),sep='--') %>% 
     mutate(file_wc_data= purrr::map(dir_name,.f = function(x){
         file_name <- "cup.txt"
         read_cup_data <- here::here(x,file_name)
@@ -127,16 +129,16 @@ wc_data <- list.files(path = here::here(),pattern = wc_path_dirs_regex) %>%
         }
         retu
     }) ) %>% 
-    tidyr::unnest(file_wc_teams_data)
+    tidyr::unnest(file_wc_teams_data) %>% 
+    
+    filter(anio<lubridate::year(lubridate::today())) # para filtrar a los futuros / mismo año
 
-# length(list.files(here::here("2018--russia","squads"))) > 0
-# length(list.files(here::here("2014--brazil","squads"))) > 0
-# View(wc_data)
+# wc_data %>% count(dir_name) %>% View()
 
 # obtener los datos de los archivos ------------------------------------------------------
 
 wc_cups_data <- wc_data %>% 
-    nest(-dir_name,-file_wc_data,-file_wc_finals_data,.key = archivos_equipos) %>% # no funciona porque no tengo todos los equipos aca.
+    nest(-anio,-sponsor,-dir_name,-file_wc_data,-file_wc_finals_data,.key = archivos_equipos) %>% # no funciona porque no tengo todos los equipos aca.
     mutate(current_path =  here::here(dir_name,file_wc_data)) %>% 
     mutate(wc_cup_texto = purrr::map(current_path,readr::read_lines)) %>% 
     mutate(wc_cup_finals_texto = purrr::map( .x=here::here(dir_name,file_wc_finals_data),
@@ -149,17 +151,8 @@ wc_cups_data <- wc_data %>%
                                                  retu
         
     })) %>% 
-    select(-file_wc_data,-current_path) %>% 
-    tidyr::separate(dir_name,into = c('anio','sponsor'),sep='--')
+    select(-file_wc_data,-current_path)
 View(wc_cups_data)
-# wc_parsed_cups_data %>% tidyr::unnest(wc_cup_texto)
-
-wc_teams_by_cup_data <- wc_data %>% 
-    mutate(team_path =  here::here(dir_name,'squads',file_wc_teams_data)) %>% 
-    mutate(wc_cup_team_texto = purrr::map(team_path,readr::read_lines)) %>% 
-    select(-file_wc_data,-team_path) %>% 
-    tidyr::separate(dir_name,into = c('anio','sponsor'),sep='--')
-# wc_teams_by_cup_data %>% tidyr::unnest(wc_cup_team_texto)
 
 # parsear torneo -------------------------------------------------------
 
@@ -171,12 +164,14 @@ wc_teams_by_cup_data <- wc_data %>%
 listado_indices_split <- list('1930'=c(1,4,5,13),'1934'=c(1,4,5,13),'1938'=c(1,4,5,13),'1950'=c(1,4,5,13),'1954'=c(1,4,5,13),'1958'=c(1,4,5,13),'1962'=c(1,4,5,13),'1966'=c(1,4,5,13),'1970'=c(1,4,5,13),'1974'=c(1,4,5,13),'1978'=c(1,4,5,13),'1982'=c(1,4,5,13),'1986'=c(1,4,5,13),'1990'=c(1,4,5,13),'1994'=c(1,4,5,13),'1998'=c(1,4,5,13),'2002'=c(1,4,5,13),
                               '2006'=c(1,4,5,19),
                               '2010'=c(1,4,5,23),
-                              '2014'=c(1,4,5,23))
+                              '2014'=c(1,4,5,23),
+                              '2018'=c(1,4,5,23))
 
 listado_parse_fecha <- list('1930'='%d %B %Y','1934'='%d %B %Y','1938'='%d %B %Y','1950'='%d %B %Y','1954'='%d %B %Y','1958'='%d %B %Y','1962'='%d %B %Y','1966'='%d %B %Y','1970'='%d %B %Y','1974'='%d %B %Y','1978'='%d %B %Y','1982'='%d %B %Y','1986'='%d %B %Y','1990'='%d %B %Y','1994'='%d %B %Y','1998'='%d %B %Y','2002'='%d %B %Y',
                               '2006'="%a %b/%d %Y",#Wed Jun/21 2006
                               '2010'="%a %b/%d %H:%M %Y",#Thu Jun/24 16:00 2010
-                              '2014'="%a %b/%d %H:%M %Y")#Thu Jun/12 17:00 2014
+                              '2014'="%a %b/%d %H:%M %Y",
+                              '2018'="%a %b/%d %H:%M %Y")#Thu Jun/12 17:00 2014
 # paste0("'",wc_cups_data$anio[1:17],"'='%d %B %Y'",collapse = ",")
 # wc_cups_data[1,]$wc_cup_texto
 wc_cups_data_processed_1 <- wc_cups_data[1,] %>% 
@@ -196,19 +191,36 @@ wc_cups_data_processed <- wc_cups_data %>%
                                                listado_fechas=listado_parse_fecha,
                                                anio=anio),
                                        .f=parse_partidos))
-# %>%
-# 
-    # NULL
+#%>% 
+    # mutate(finales_parsed=purrr::pmap(.l=list(partidos_data=partidos_crudo,
+    #                                            listado_indices=listado_indices_split,
+    #                                            listado_fechas=listado_parse_fecha,
+    #                                            anio=anio),
+    #                                    .f=parse_partidos))
 
-current_idx <- 20
+current_idx <- 21
 wc_cups_data_processed$partidos_parsed[current_idx]
 # wc_cups_data_processed$partidos_parsed[current_idx][[1]] %>% View()
 wc_cups_data_processed$partidos_crudo[current_idx]
 
 
-# creo que con tener ya todos los equipos resultados  es mas que suficiente para esta edicion
+# creo que con tener ya todos los equipos resultados  es mas que suficiente para esta 1ra edicion
 # que esten las fechas bien, traducir y listo
-# me falt ahacer el merge de los que tienen " final" , a que este todo en un " partidos " y exportar eso.
+# me falta hacer el merge de los que tienen " final" , a que este todo en un " partidos " y exportar eso.
 # si todo va bien, podria reciclar lo que hice con cup.txt
 
+
+
 # parsear equipos ---------------------------------------------------------
+wc_teams_by_cup_data <- wc_data %>% 
+    mutate(team_path =  here::here(dir_name,'squads',file_wc_teams_data)) %>% 
+    # mutate(wc_cup_team_texto = purrr::map(team_path,readr::read_lines)) %>% 
+    mutate(wc_cup_team_texto = purrr::map( .x=team_path,
+                                           .f=function(x){
+                                               retu <- NA
+                                               if (!stringr::str_ends(x,"NA")) {
+                                                   retu <- readr::read_lines(x)   
+                                               }
+                                               retu
+                                           })) %>% 
+    select(-file_wc_data,-team_path)
