@@ -27,6 +27,13 @@ parse_copas_extraer_grupos <- function(datos_copa){
     grupos_df
 }
 
+extraer_finales <- function(datos_copa){
+    retu <- NA
+    if (length(datos_copa) > 1) {
+        retu <-extraer_partidos(datos_copa)    
+    }
+    retu
+}
 
 extraer_partidos <-  function(datos_copa){
     texto <- datos_copa
@@ -35,6 +42,13 @@ extraer_partidos <-  function(datos_copa){
     partidos <- no_comentarios[stringr::str_detect(string = no_comentarios,pattern = "@")] %>% stringr::str_trim()
     
     partidos
+}
+parse_finales <- function(partidos_data,listado_indices,listado_fechas,anio){
+    retu <- NA
+    if (length(partidos_data) > 1) {
+        retu <-parse_partidos(partidos_data,listado_indices,listado_fechas,anio)    
+    }
+    retu
 }
 parse_partidos <- function(partidos_data,listado_indices,listado_fechas,anio){
     
@@ -66,9 +80,51 @@ parse_partidos <- function(partidos_data,listado_indices,listado_fechas,anio){
         mutate(fecha=paste0(fecha," ",anio)) %>% # YmdHMS
         mutate(fecha=parse_date(fecha,format=listado_fechas))
  
+    # df <- data.frame(textos=c(ex1,ex2,ex3,ex4,ex5,ex6,ex7),stringsAsFactors = FALSE) %>% as_tibble()
+    # ex1<- "(55) Tue Jun/29 16:00   Paraguay       0-0 0-0nV 5-3iE  Japan         @ Loftus Versfeld Stadium, Pretoria"
+    # ex2<- "(58) Fri Jul/2 20:30   Uruguay        1-1 1-1nV 4-2iE   Ghana         @ Soccer City, Johannesburg"
+    # ex3<- "(64) Sun Jul/11 20:30  Netherlands  0-0 0-1nV  Spain     @ Soccer City, Johannesburg"
+    # ex4<- "(64) Sun Jul/13 16:00  Germany 1-0 a.e.t. (0-0, 0-0) Argentina     @ Estádio do Maracanã, Rio de Janeiro (UTC-3)   # W61 - W62"
+    # ex5<- "(62) Wed Jul/9 17:00  Netherlands  2-4 pen. 0-0 a.e.t. (0-0, 0-0)  Argentina        @ Arena de São Paulo, São Paulo (UTC-3)    # W59 - W69  "
+    # ex6<- "(45) 21 June    Brazil  3-4pen 1-1aet 1-1  France          @ Estadio Jalisco, Guadalajara"
+    # ex7<- "(38) 15 June   Soviet Union  3-4 a.e.t.  2-2   Belgium  @ Estadio Nou Camp, León"
+    # 
+    # 
+    # df %>% 
+    #     tidyr::separate(textos,into=c("partido","estadio"),sep="@") %>% 
+    #     mutate(equipos=stringr::str_trim(stringr::str_sub(partido,start = 13))) %>% #13 o 22
+    #     mutate(equipos= stringr::str_replace_all(equipos,"iE","")) %>% 
+    #     mutate(equipos= stringr::str_replace_all(equipos,"nV","")) %>% 
+    #     # mutate(equipos= stringr::str_replace_all(equipos,"aet","")) %>% 
+    #     mutate(equipos= stringr::str_replace_all(equipos,"a"%R%rebus::optional(rebus::DOT)%R%"e"%R%rebus::optional(rebus::DOT)%R%"t"%R%rebus::optional(rebus::DOT),"")) %>% 
+    #     mutate(equipos= stringr::str_replace_all(equipos,"pen"%R%rebus::optional(rebus::DOT),"")) %>% 
+    #     mutate(equipos=str_replace_all(equipos,"[^[:alpha:][:space:]]","")) %>% 
+    #     
+    #     mutate(equipos=stringr::str_extract_all(equipos,regex_equipos_fechas)) %>% 
+    #     mutate(equipos=purrr::map(equipos,.f=function(x){paste0(collapse=";",x)})) %>% tidyr::unnest(equipos) %>% #View()
+    #     tidyr::separate(equipos,sep=";",into=c("nombre_eq_1","nombre_eq_2")) %>% 
+    #     mutate(nombre_eq_1=stringr::str_trim(nombre_eq_1)) %>% #pull(equipos)
+    #     mutate(nombre_eq_2=stringr::str_trim(nombre_eq_2)) %>% 
+    #     select(nombre_eq_1,nombre_eq_2)
+        # mutate(equipos= stringr::str_replace_all(equipos,"pen","")) %>% 
+
+    
+    # si contiene iE , si contiene nV, es de un tipo de partidos si tiene iE, es sacar 
+    # " 5-3iE" creo que es penales
+    # " 0-1nV" creo que es entre tiempo / gol de oro
+    # si contiene a.e.t., es otro, : " a entretiempo / gol de oro " , 
+    #
+    # si contiene  pen. es otro: penales
+    # 
+    
+    
     partidos_nombre_equipos <- partidos_pos_fecha %>% 
         mutate(equipos=stringr::str_trim(stringr::str_sub(partido,start = listado_indices[4]+1))) %>%
-        mutate(equipos=str_replace_all(equipos,"a\\.e\\.t\\.","")) %>% 
+        mutate(equipos= stringr::str_replace_all(equipos,"iE","")) %>% 
+        mutate(equipos= stringr::str_replace_all(equipos,"nV","")) %>% 
+        # mutate(equipos= stringr::str_replace_all(equipos,"aet","")) %>% 
+        mutate(equipos= stringr::str_replace_all(equipos,"a"%R%rebus::optional(rebus::DOT)%R%"e"%R%rebus::optional(rebus::DOT)%R%"t"%R%rebus::optional(rebus::DOT),"")) %>% 
+        mutate(equipos= stringr::str_replace_all(equipos,"pen"%R%rebus::optional(rebus::DOT),"")) %>% 
         mutate(equipos=str_replace_all(equipos,"[^[:alpha:][:space:]]","")) %>% 
         
         mutate(equipos=stringr::str_extract_all(equipos,regex_equipos_fechas)) %>% 
@@ -167,6 +223,12 @@ listado_indices_split <- list('1930'=c(1,4,5,13),'1934'=c(1,4,5,13),'1938'=c(1,4
                               '2014'=c(1,4,5,23),
                               '2018'=c(1,4,5,23))
 
+listado_indices_split_finales <- list('1930'=c(1,4,5,13),'1934'=c(1,4,5,13),'1938'=c(1,4,5,13),'1950'=c(1,4,5,13),'1954'=c(1,4,5,13),'1958'=c(1,4,5,13),'1962'=c(1,4,5,13),'1966'=c(1,4,5,13),'1970'=c(1,4,5,13),'1974'=c(1,4,5,13),'1978'=c(1,4,5,13),'1982'=c(1,4,5,13),'1986'=c(1,4,5,13),'1990'=c(1,4,5,13),'1994'=c(1,4,5,13),'1998'=c(1,4,5,13),'2002'=c(1,4,5,13),
+                              '2006'=c(1,4,5,19),
+                              '2010'=c(1,4,5,22),
+                              '2014'=c(1,4,5,22),
+                              '2018'=c(1,4,5,22))
+
 listado_parse_fecha <- list('1930'='%d %B %Y','1934'='%d %B %Y','1938'='%d %B %Y','1950'='%d %B %Y','1954'='%d %B %Y','1958'='%d %B %Y','1962'='%d %B %Y','1966'='%d %B %Y','1970'='%d %B %Y','1974'='%d %B %Y','1978'='%d %B %Y','1982'='%d %B %Y','1986'='%d %B %Y','1990'='%d %B %Y','1994'='%d %B %Y','1998'='%d %B %Y','2002'='%d %B %Y',
                               '2006'="%a %b/%d %Y",#Wed Jun/21 2006
                               '2010'="%a %b/%d %H:%M %Y",#Thu Jun/24 16:00 2010
@@ -191,12 +253,7 @@ wc_cups_data_processed <- wc_cups_data %>%
                                                listado_fechas=listado_parse_fecha,
                                                anio=anio),
                                        .f=parse_partidos))
-#%>% 
-    # mutate(finales_parsed=purrr::pmap(.l=list(partidos_data=partidos_crudo,
-    #                                            listado_indices=listado_indices_split,
-    #                                            listado_fechas=listado_parse_fecha,
-    #                                            anio=anio),
-    #                                    .f=parse_partidos))
+
 
 current_idx <- 21
 wc_cups_data_processed$partidos_parsed[current_idx]
@@ -209,7 +266,27 @@ wc_cups_data_processed$partidos_crudo[current_idx]
 # me falta hacer el merge de los que tienen " final" , a que este todo en un " partidos " y exportar eso.
 # si todo va bien, podria reciclar lo que hice con cup.txt
 
+wc_cups_data_processed_con_finales <- wc_cups_data_processed %>% 
+    mutate(finales_crudo=purrr::map(.x=wc_cup_finals_texto,.f=extraer_finales)) %>% # select(finales_crudo) %>% View()
+    mutate(finales_parsed=purrr::pmap(.l=list(partidos_data=finales_crudo,
+                                           listado_indices=listado_indices_split_finales,
+                                           listado_fechas=listado_parse_fecha,
+                                           anio=anio),
+                                   .f=parse_finales))
+    
 
+current_idx_2 <- 21
+wc_cups_data_processed_con_finales$finales_parsed[current_idx_2]
+# wc_cups_data_processed$partidos_parsed[current_idx][[1]] %>% View()
+wc_cups_data_processed_con_finales$finales_crudo[current_idx_2]
+
+# wc_cups_data_processed_con_finales %>% filter(!is.na(file_wc_finals_data)) %>% unnest(finales_parsed) %>% 
+#     # count(anio,fecha) %>% View()
+#     filter(is.na(fecha))
+
+wc_cups_data_processed_con_finales %>% filter(!is.na(file_wc_finals_data)) %>% unnest(finales_parsed) %>% View()
+
+glimpse(wc_cups_data_processed_con_finales)
 
 # parsear equipos ---------------------------------------------------------
 wc_teams_by_cup_data <- wc_data %>% 
