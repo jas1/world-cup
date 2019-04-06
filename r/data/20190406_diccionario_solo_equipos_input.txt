@@ -1,0 +1,86 @@
+eq	pais_es
+Algeria	Argelia
+Angola	Angola
+Argentina	Argentina
+Australia	Australia
+Austria	Austria
+Belgium	Bélgica
+Bolivia	Bolivia
+BosniaHerzegovina	Bosnia Herzegovina
+Brazil	Brasil
+Bulgaria	Bulgaria
+Cameroon	Camerún
+Canada	Canadá
+Chile	Chile
+China	China
+Colombia	Colombia
+Costa Rica	Costa Rica
+Côte dIvoire	Costa de Marfil
+Croatia	Croacia
+Cuba	Cuba
+Czech Republic	Republica Checa
+Czechoslovakia	Checoslovaquia
+Denmark	Dinamarca
+Dutch East Indies	Indias Orientales Holandesas
+East Germany	Alemania del Este
+Ecuador	Ecuador
+Egypt	Egipto
+El Salvador	El Salvador
+England	Inglaterra
+France	Francia
+Germany	Alemania
+Ghana	Ghana
+Greece	Grecia
+Haiti	Haití
+Honduras	Honduras
+Hungary	Hungría
+Iceland	Islandia
+Iran	Irán
+Iraq	Irak
+Ireland	Irlanda
+Israel	Israel
+Italy	Italia
+Jamaica	Jamaica
+Japan	Japón
+Kuwait	Kuwait
+Mexico	Mexico
+Morocco	Marruecos
+Netherlands	Países Bajos
+New Zealand	Nueva Zelanda
+Nigeria	Nigeria
+North Korea	Corea del Norte
+Northern Ireland	Irlanda del Norte
+Norway	Noruega
+Panama	Panamá
+Paraguay	Paraguay
+Peru	Perú
+Poland	Polonia
+Portugal	Portugal
+Republic of Ireland	Republica de Irlanda
+Romania	Rumania
+Russia	Rusia
+Saudi Arabia	Arabia Saudita
+Scotland	Escocia
+Senegal	Senegal
+Serbia	Serbia
+Serbia and Montenegro	Serbia y Montenegro
+Slovakia	Eslovaquia
+Slovenia	Eslovenia
+South Africa	Sudáfrica
+South Korea	Corea del Sur
+Soviet Union	Unión Soviética
+Spain	España
+Sweden	Suecia
+Switzerland	Suiza
+Togo	Togo
+Trinidad and Tobago	Trinidad y Tobago
+Tunisia	Túnez
+Turkey	Turquía
+Ukraine	Ucrania
+United Arab Emirates	Emiratos Árabes Unidos
+United States	Estados Unidos
+Uruguay	Uruguay
+Wales	Gales
+West Germany	Alemania occidental
+Yugoslavia	Yugoslavia
+Zaire	Zaire
