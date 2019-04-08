@@ -332,8 +332,10 @@ version_es_final <- version_es %>%
     left_join(diccionario_paises, by=c("anfitrion_2"="eq_2")) %>% 
     # mutate(anfitrion=if_else(anfitrion=="South Korea and Japan","Corea del sur y Japón",anfitrion))
     mutate(anfitrion=if_else(anfitrion=="South Korea and Japan","Corea del sur y Japón",pais_es)) %>% 
-    select(-pais_es,-eq,-anfitrion_2)
+    select(-pais_es,-eq,-anfitrion_2) %>% 
+    arrange(fecha)
 
+# version_es_final %>% View()
 # readr::write_delim(version_es_final,here::here("r","data","20190406_es_final_partidos.txt"),delim = "\t")
     
 
