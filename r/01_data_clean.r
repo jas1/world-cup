@@ -335,6 +335,36 @@ version_es_final <- version_es %>%
     select(-pais_es,-eq,-anfitrion_2) %>% 
     arrange(fecha)
 
+glimpse(version_es_final)
+cat(paste0(colnames(version_es_final),collapse = "\n"))
+
+# partidos en crudo -------------------------------------------------------
+
+
+df_para_union_1_crudo <- wc_cups_data_processed %>% 
+    unnest(partidos_crudo) %>%
+    rename(anfitrion=sponsor) %>% 
+    select(anio,anfitrion,partidos_crudo) %>% 
+    arrange(anio)
+
+# los partidos sacados de los archivos de finales. no todos los mundiales tienen las finales por separado.
+df_para_union_2_crudo <- wc_cups_data_processed_con_finales %>% 
+    filter(!is.na(file_wc_finals_data)) %>%  
+    unnest(finales_crudo) %>% 
+    rename(anfitrion=sponsor) %>% 
+    select(anio,anfitrion,finales_crudo) %>% 
+    rename(partidos_crudo=finales_crudo) %>% 
+    arrange(anio)
+
+
+partidos_crudo_final <- df_para_union_1_crudo %>% dplyr::union_all(df_para_union_2_crudo) %>% arrange(anio)
+
+
+# readr::write_delim(partidos_crudo_final,here::here("r","data","20190407_partidos_crudo.txt"),delim = "\t")
+# readr::read_delim(here::here("r","data","20190407_partidos_crudo.txt"),delim = "\t")
+
+# %>% View(title = "partidos_crudo")
+
 # version_es_final %>% View()
 # readr::write_delim(version_es_final,here::here("r","data","20190406_es_final_partidos.txt"),delim = "\t")
     
@@ -357,6 +387,21 @@ wc_teams_by_cup_data <- wc_data %>%
                                            })) %>% 
     select(-file_wc_data,-team_path)
 
+
+# Grupos ------------------------------------------------------------------
+# aca esta mal la regex. habria que cambiarlo pero por el momento queda asi.
+# hay que preparar otras cosas. eventualmente se puede corregir esto y disponibilizar
+
+# wc_cups_data_processed %>% 
+#     unnest(grupos) %>% 
+#     select(anio,sponsor,grupo,pais) %>% 
+#     arrange(anio,grupo) %>% 
+#     left_join(diccionario_paises, by=c("pais"="eq")) %>% 
+#     filter(is.na(pais_es))
+#     mutate(pais=pais_es) %>% 
+#     select(-pais_es,-eq_2) %>% 
+#     View()
+#     filter(is.na(pais))
 
 # comentarios para borrar en algun momento --------------------------------
 
